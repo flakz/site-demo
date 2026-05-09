@@ -6,19 +6,9 @@ import { clsx, type ClassValue } from "clsx";
 function cn(...a: ClassValue[]) { return clsx(a); }
 
 const FLAP_CHARS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$()-+&=;:'\"%,./?°";
-
-const BOARD_ROWS = 6;
-const BOARD_COLS = 22;
-
-const BASE_COL_DELAY = 30;
-const BASE_ROW_DELAY = 20;
-const BASE_STEP_MS = 55;
-const BASE_FLIP_S = 0.35;
-const BASE_TOTAL_S =
-  ((BOARD_COLS - 1) * BASE_COL_DELAY +
-    (BOARD_ROWS - 1) * BASE_ROW_DELAY +
-    8 * BASE_STEP_MS) /
-  1000;
+const BOARD_ROWS = 6, BOARD_COLS = 22;
+const COL_D = 30, ROW_D = 20, STEP_MS = 55, FLIP_S = 0.35;
+const BASE_TOTAL_S = ((BOARD_COLS - 1) * COL_D + (BOARD_ROWS - 1) * ROW_D + 8 * STEP_MS) / 1000;
 
 type AccentColor = {
   top: string;
@@ -291,70 +281,31 @@ type ParsedCell =
   | { type: "color"; hex: string };
 
 function parseRow(row: string): ParsedCell[] {
-  const cells: ParsedCell[] = [];
-  let i = 0;
-  while (i < row.length) {
-    if (row[i] === "{" && i + 2 < row.length && row[i + 2] === "}") {
-      const code = row.substring(i, i + 3);
-      if (COLOR_MAP[code]) {
-        cells.push({ type: "color", hex: COLOR_MAP[code] });
-        i += 3;
-        continue;
-      }
+  const cells: ParsedCell[] = [], len = row.length;
+  for (let i = 0; i < len; i++) {
+    if (row[i] === "{" && i + 2 < len && row[i + 2] === "}") {
+      const hex = COLOR_MAP[row.substring(i, i + 3)];
+      if (hex) { cells.push({ type: "color", hex }); i += 2; continue; }
     }
     cells.push({ type: "char", value: row[i] });
-    i++;
   }
   return cells;
 }
 
-// ── Word Wrap ─────────────────────────────────────────────────────────
-
-function wrapParagraph(paragraph: string, maxCols: number): string[] {
-  const lines: string[] = [];
-  const words = paragraph.split(/[ \t]+/).filter(Boolean);
-  let currentLine = "";
-
-  for (const word of words) {
-    if (word.length > maxCols) {
-      if (currentLine) {
-        lines.push(currentLine);
-        currentLine = "";
-      }
-      lines.push(word.slice(0, maxCols));
-      continue;
-    }
-
-    if (!currentLine) {
-      currentLine = word;
-    } else if (currentLine.length + 1 + word.length <= maxCols) {
-      currentLine += " " + word;
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
-    }
-  }
-
-  if (currentLine) lines.push(currentLine);
-  return lines;
-}
-
-function wrapText(input: string, maxCols: number): string[] {
-  return input
-    .split("\n")
-    .flatMap((paragraph) =>
-      paragraph.trim() === "" ? [""] : wrapParagraph(paragraph, maxCols),
-    );
+function wrapText(input: string, max: number): string[] {
+  return input.split("\n").flatMap(p =>
+    p.trim() === "" ? [""] : p.split(/[ \t]+/).filter(Boolean).reduce<string[][]>((lines, word) => {
+      const last = lines[lines.length - 1];
+      if (!last || last.join(" ").length + 1 + word.length > max) return [...lines, [word]];
+      return [...lines.slice(0, -1), [...last, word]];
+    }, []).map(l => l.join(" "))
+  );
 }
 
 // ── Main TextFlippingBoard Component ──────────────────────────────────
 
 export interface TextFlippingBoardProps {
-  rows?: string[];
-  text?: string;
-  className?: string;
-  /** Total animation duration in seconds. Defaults to ~1.2s. */
-  duration?: number;
+  rows?: string[]; text?: string; className?: string; duration?: number;
 }
 
 export function TextFlippingBoard({
@@ -364,10 +315,8 @@ export function TextFlippingBoard({
   duration = BASE_TOTAL_S,
 }: TextFlippingBoardProps) {
   const scale = duration / BASE_TOTAL_S;
-  const colDelay = BASE_COL_DELAY * scale;
-  const rowDelay = BASE_ROW_DELAY * scale;
-  const stepMs = BASE_STEP_MS * scale;
-  const flipDur = Math.min(0.6, Math.max(0.15, BASE_FLIP_S * scale));
+  const colDelay = COL_D * scale, rowDelay = ROW_D * scale, stepMs = STEP_MS * scale;
+  const flipDur = Math.min(0.6, Math.max(0.15, FLIP_S * scale));
 
   const board = useMemo(() => {
     const grid: ParsedCell[][] = Array.from({ length: BOARD_ROWS }, () =>
