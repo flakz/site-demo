@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { clsx, type ClassValue } from "clsx";
+function cn(...a: ClassValue[]) { return clsx(a); }
 
 const vertexShaderGLSL = `
 attribute vec2 position;

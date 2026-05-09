@@ -2,11 +2,22 @@
 
 import { RotateCw, X, ArrowUp, Loader2 } from "lucide-react";
 import Velaris from '@/components/forgeui/velaris';
-import TextFlippingBoardDemo from '@/components/text-flipping-board-demo';
+import { TextFlippingBoard } from '@/components/ui/text-flipping-board';
+import { EncryptedText } from '@/components/ui/encrypted-text';
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import { AnimatePresence, motion } from "motion/react";
+import { clsx, type ClassValue } from "clsx";
+function c(...a: ClassValue[]) { return clsx(a); }
+
+const DEMO_MSGS = [
+  "STAY HUNGRY \nSTAY IN BED \n- STEVE JOBS",
+  "hat did you get done this week?",
+  "I burned $20 \nfor this shit.",
+  "DONT WORRY \nBE HAPPY FFS.",
+  "LADIES AND GENTLEMEN \nWELCOME TO F#!@# C!@$",
+];
 
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.marno.pro/webhook/marno-chat";
 const KB_SLUG = process.env.NEXT_PUBLIC_KB_SLUG || "kbase";
@@ -33,16 +44,18 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [demoIdx, setDemoIdx] = useState(0);
 
   const sessionIdRef = useRef<string>(crypto.randomUUID());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { sessionIdRef.current = crypto.randomUUID(); }, []);
+  useEffect(() => {
+    const id = setInterval(() => setDemoIdx(i => (i + 1) % DEMO_MSGS.length), 6000);
+    return () => clearInterval(id);
+  }, []);
 
-  const scrollToBottom = () => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); };
-  useEffect(() => { scrollToBottom(); }, [messages, isLoading, isOpen]);
-
-  const handleSend = async (textOverride?: string) => {
+const handleSend = async (textOverride?: string) => {
     const textToSend = textOverride || inputValue;
     if (!textToSend.trim()) return;
     if (!textOverride) setInputValue("");
@@ -94,14 +107,21 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Velaris
-        height="100vh"
-        bg="#000000"
-        colors={["#86efac", "#4ade80", "#059669", "#000000"]}
-        speed={2.0}
-        grain={0.3}
-      >
-        <TextFlippingBoardDemo />
+      <Velaris height="100vh" bg="#000000" colors={["#86efac", "#4ade80", "#059669", "#000000"]} speed={2} grain={0.3}>
+        <div className="flex w-full h-full flex-col items-center justify-center gap-8 px-4">
+          <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
+          <div className="w-full max-w-3xl">
+            <p className="text-left text-white/70 text-sm md:text-base leading-relaxed">
+              <span className="text-white/90">You</span>{" "}
+              <span className="text-white/90">are not your job</span>,{" "}
+              <span className="text-white/90">you&apos;re not how much money</span>{" "}
+              you have in the bank. <span className="text-white/90">You are not the car</span> you drive.{" "}
+              <span className="text-white/90">you&apos;re not the contents</span> of your wallet.{" "}
+              <span className="text-white/90">You are not your fucking khakis</span>.{" "}
+              <EncryptedText text="All singing, all dancing crap of the world." className="text-white/90" encryptedClassName="text-white/30" revealedClassName="text-white/90" />
+            </p>
+          </div>
+        </div>
       </Velaris>
 
       {/* Chat Widget */}

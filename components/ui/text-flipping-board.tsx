@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
+import { clsx, type ClassValue } from "clsx";
+function cn(...a: ClassValue[]) { return clsx(a); }
 
 const FLAP_CHARS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$()-+&=;:'\"%,./?°";
 

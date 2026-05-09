@@ -47,29 +47,5 @@ p, span, button, input, li, a {
   font-family: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Hide scrollbars everywhere */
-* {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-*::-webkit-scrollbar {
-  display: none;
-}
-
-/* Pulse ring animation for chat toggle */
-@keyframes pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 rgba(13, 114, 255, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(13, 114, 255, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(13, 114, 255, 0);
-  }
-}
-
-.pulse-ring {
-  animation: pulse-ring 2s infinite;
-}
+* { scrollbar-width: none; -ms-overflow-style: none; }
+*::-webkit-scrollbar { display: none; }

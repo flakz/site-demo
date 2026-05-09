@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
-import { cn } from "@/lib/utils";
+import { clsx, type ClassValue } from "clsx";
+function cn(...a: ClassValue[]) { return clsx(a); }
 
 type EncryptedTextProps = {
   text: string;
