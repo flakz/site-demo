@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #1D1D1F;
+  --background-alt: #F5F5F7;
+  --background-gray: #e8e8edb8;
+  --radius-lg: 28px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-background-alt: var(--background-alt);
+  --color-background-gray: var(--background-gray);
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
+  --shadow-custom: inset 0 0 .5px 0 rgba(0,0,0,.11);
+  --radius-lg: var(--radius-lg);
+  --breakpoint-2xl: 1440px;
+}
+
+body {
+  color: var(--foreground);
+  font-family: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Instrument Serif', Georgia, serif;
+}
+
+p, span, button, input, li, a {
+  font-family: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Chat widget uses Karla */
+.chat-widget {
+  font-family: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
+}
+
+.chat-widget p, .chat-widget span, .chat-widget button, .chat-widget input, .chat-widget h1, .chat-widget h2, .chat-widget h3 {
+  font-family: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Hide scrollbars everywhere */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pulse ring animation for chat toggle */
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(13, 114, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(13, 114, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(13, 114, 255, 0);
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s infinite;
+}
