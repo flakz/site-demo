@@ -225,10 +225,10 @@ const handleSend = async (textOverride?: string) => {
                       transition={{ duration: 0.3, delay: 0.1, ease: "easeOut" }}
                       className="flex flex-wrap gap-2 mt-2 justify-start w-full"
                     >
-                      {SUGGESTIONS.map((suggestion, idx) => (
+                      {SUGGESTIONS.map((suggestion) => (
                         <motion.button
                           layoutId={`suggestion-${suggestion.prompt}`}
-                          key={idx}
+                          key={suggestion.prompt}
                           onClick={() => handleSend(suggestion.prompt)}
                           className="bg-[#EBF5FF] text-[#0D72FF] hover:bg-[#D6EAFC] px-[14px] py-[8px] rounded-[10px] text-[14.5px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
