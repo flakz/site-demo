@@ -421,11 +421,11 @@ export default function App() {
     <div className="min-h-screen bg-white">
       <Velaris height="100vh" bg="#000000" colors={["#86efac", "#4ade80", "#059669", "#000000"]} speed={2} grain={0.3}>
         <div className="flex w-full h-full flex-col items-center justify-center gap-8 px-4">
-          <AccordionFAQ />
-          <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
           <div className="w-full max-w-3xl">
             <p className="text-left text-white/70 text-sm md:text-base leading-relaxed">{LANDING_TEXT.split('\n').map((line, i) => (<span key={i}>{line}{i < LANDING_TEXT.split('\n').length - 1 && <br />}</span>))}</p>
           </div>
+          <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
+          <AccordionFAQ />
         </div>
       </Velaris>
       <AnimatePresence>
