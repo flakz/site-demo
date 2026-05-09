@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useMemo, type ReactNode, type Keybo
 import { AnimatePresence, motion, useInView } from "motion/react";
 import dynamic from "next/dynamic";
 import { clsx, type ClassValue } from "clsx";
+import { ChevronDown } from "lucide-react";
 function cn(...a: ClassValue[]) { return clsx(a); }
 
 // Lazy loaded chat widget
@@ -293,6 +294,73 @@ const SUGGESTIONS = [
   { label: process.env.NEXT_PUBLIC_SUGGEST_5_LABEL || "Documentation", prompt: process.env.NEXT_PUBLIC_SUGGEST_5_PROMPT || "Where can I find the API documentation?" },
 ];
 
+function AccordionFAQ() {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  const items = [
+    {
+      title: "How do I place an order?",
+      content:
+        "Browse our products, add items to your cart, and proceed to checkout. You'll need to provide shipping and payment information to complete your purchase.",
+    },
+    {
+      title: "Can I modify or cancel my order?",
+      content:
+        "Yes, you can modify or cancel your order before it's shipped. Once your order is processed, you can't make changes.",
+    },
+    {
+      title: "What payment methods do you accept?",
+      content:
+        "We accept all major credit cards, debit cards, and PayPal. Your payment information is encrypted and processed securely.",
+    },
+    {
+      title: "How long does shipping take?",
+      content:
+        "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business day delivery.",
+    },
+  ];
+
+  return (
+    <div className="w-full max-w-3xl rounded-xl bg-black/20 backdrop-blur-md px-4 py-2">
+      {items.map((item, idx) => (
+        <div
+          key={idx}
+          className={cn(
+            idx > 0 && "border-t border-white/10",
+          )}
+        >
+          <button
+            onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+            className="flex w-full items-center justify-between py-3 text-left text-white/80 hover:text-white transition-colors"
+          >
+            <span className="text-sm md:text-base font-medium">{item.title}</span>
+            <motion.span
+              animate={{ rotate: openIdx === idx ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="text-white/50"
+            >
+              <ChevronDown size={18} />
+            </motion.span>
+          </button>
+          <motion.div
+            initial={false}
+            animate={{
+              height: openIdx === idx ? "auto" : 0,
+              opacity: openIdx === idx ? 1 : 0,
+            }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <p className="pb-3 text-sm text-white/50 leading-relaxed">
+              {item.content}
+            </p>
+          </motion.div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([
     { id: crypto.randomUUID(), role: 'system', text: "Hi there! I'm an AI agent trained on docs, help articles, and other important content." },
@@ -353,6 +421,7 @@ export default function App() {
     <div className="min-h-screen bg-white">
       <Velaris height="100vh" bg="#000000" colors={["#86efac", "#4ade80", "#059669", "#000000"]} speed={2} grain={0.3}>
         <div className="flex w-full h-full flex-col items-center justify-center gap-8 px-4">
+          <AccordionFAQ />
           <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
           <div className="w-full max-w-3xl">
             <p className="text-left text-white/70 text-sm md:text-base leading-relaxed">{LANDING_TEXT.split('\n').map((line, i) => (<span key={i}>{line}{i < LANDING_TEXT.split('\n').length - 1 && <br />}</span>))}</p>
