@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import { motion } from "motion/react";
 import { clsx, type ClassValue } from "clsx";
 function cn(...a: ClassValue[]) { return clsx(a); }
-
 const FLAP_CHARS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$()-+&=;:'\"%,./?°";
 const BOARD_ROWS = 6, BOARD_COLS = 22;
 const COL_D = 30, ROW_D = 20, STEP_MS = 55, FLIP_S = 0.35;
@@ -265,15 +264,6 @@ const COLOR_MAP: Record<string, string> = {
   "{W}": "#FAFAFA",
 };
 
-const ColorCell = React.memo(function ColorCell({ color }: { color: string }) {
-  return (
-    <div
-      className="aspect-3/5 rounded-[3px] border-2 border-neutral-300 dark:border-black"
-      style={{ backgroundColor: color }}
-    />
-  );
-});
-
 // ── Row Parser ────────────────────────────────────────────────────────
 
 type ParsedCell =
@@ -360,10 +350,10 @@ export function TextFlippingBoard({
 
   return (
     <div
-      className={cn(
+      className={[
         "relative mx-auto w-full max-w-3xl rounded-xl bg-neutral-100 p-2 shadow-xl md:rounded-2xl md:p-4 dark:bg-neutral-900 dark:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.6)]",
         className,
-      )}
+      ].filter(Boolean).join(" ")}
     >
       <div
         className="grid gap-px md:gap-[3px]"
@@ -372,7 +362,7 @@ export function TextFlippingBoard({
         {board.map((row, r) =>
           row.map((cell, c) =>
             cell.type === "color" ? (
-              <ColorCell key={`${r}-${c}`} color={cell.hex} />
+              <div key={`${r}-${c}`} className="aspect-3/5 rounded-[3px] border-2 border-neutral-300 dark:border-black" style={{ backgroundColor: cell.hex }} />
             ) : (
               <FlapCell
                 key={`${r}-${c}`}
