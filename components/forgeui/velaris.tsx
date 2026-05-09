@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { clsx, type ClassValue } from "clsx";
-function cn(...a: ClassValue[]) { return clsx(a); }
 
 const vertexShaderGLSL = `
 attribute vec2 position;
@@ -197,7 +195,7 @@ const Velaris = ({
     <div
       ref={containerRef}
       style={{ height }}
-      className={cn("relative w-full overflow-hidden", className)}
+      className={["relative w-full overflow-hidden", className].filter(Boolean).join(" ")}
     >
       <canvas
         ref={canvasRef}

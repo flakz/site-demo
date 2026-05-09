@@ -3,13 +3,11 @@
 import { RotateCw, X, ArrowUp, Loader2 } from "lucide-react";
 import Velaris from '@/components/forgeui/velaris';
 import { TextFlippingBoard } from '@/components/ui/text-flipping-board';
-import { EncryptedText } from '@/components/ui/encrypted-text';
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import { AnimatePresence, motion } from "motion/react";
-import { clsx, type ClassValue } from "clsx";
-function c(...a: ClassValue[]) { return clsx(a); }
+import { EncryptedText } from '@/components/ui/encrypted-text';
 
 const DEMO_MSGS = [
   "STAY HUNGRY \nSTAY IN BED \n- STEVE JOBS",
