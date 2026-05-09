@@ -55,10 +55,11 @@ export default function App() {
 
 const handleSend = async (textOverride?: string) => {
     const textToSend = textOverride || inputValue;
-    if (!textToSend.trim()) return;
+    const trimmed = textToSend.trim();
+    if (!trimmed) return;
     if (!textOverride) setInputValue("");
 
-    const userMsgObj: Message = { id: crypto.randomUUID(), role: 'user', text: textToSend.trim() };
+    const userMsgObj: Message = { id: crypto.randomUUID(), role: 'user', text: trimmed };
     setMessages(prev => [...prev, userMsgObj]);
     setIsLoading(true);
 
@@ -66,11 +67,11 @@ const handleSend = async (textOverride?: string) => {
       const res = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: textToSend.trim(), sessionId: sessionIdRef.current, slug: KB_SLUG }),
+        body: JSON.stringify({ query: trimmed, sessionId: sessionIdRef.current, slug: KB_SLUG }),
       });
       if (!res.ok) throw new Error(`Webhook returned ${res.status}`);
       const resp = await res.json();
-      const responseText: string = resp.response || "";
+      const responseText = resp.response || "";
 
       const modelMessageId = crypto.randomUUID();
       setIsLoading(false);
@@ -79,7 +80,7 @@ const handleSend = async (textOverride?: string) => {
       const chars = responseText.split("");
       let fullText = "";
       for (let i = 0; i < chars.length; i += 2) {
-        fullText += chars.slice(i, i + 2).join("");
+        fullText += chars[i] + (chars[i + 1] || "");
         setMessages(prev => prev.map(m => m.id === modelMessageId ? { ...m, text: fullText } : m));
         await new Promise(r => setTimeout(r, 10));
       }
