@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
-import { RotateCw, X, ArrowUp, Loader2 } from "lucide-react";
-import { useState, useRef, useEffect, KeyboardEvent, useMemo, type ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkBreaks from "remark-breaks";
+import React, { useState, useRef, useEffect, useMemo, type ReactNode, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
+import dynamic from "next/dynamic";
 import { clsx, type ClassValue } from "clsx";
 function cn(...a: ClassValue[]) { return clsx(a); }
+
+// Lazy loaded chat widget
+const ChatWidget = dynamic(() => import("./chat-widget").then(m => m.default), { ssr: false });
 
 // ── Velaris (WebGL Background) ─────────────────────────────────────────
 
@@ -23,7 +23,7 @@ precision highp float; varying vec2 vUv;
 uniform vec2 u_resolution; uniform float u_time; uniform float u_grain; uniform vec3 u_colors[4]; uniform vec3 u_bg;
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 float snoise(vec2 v){ const vec4 C = vec4(0.211324865405187,0.366025403784439,-0.577350269189626,0.024390243902439); vec2 i = floor(v+dot(v,C.yy)); vec2 x0 = v-i+dot(i,C.xx); vec2 i1 = (x0.x>x0.y)?vec2(1.0,0.0):vec2(0.0,1.0); vec4 x12 = x0.xyxy+C.xxzz; x12.xy -= i1; i = mod(i,289.0); vec3 p = permute(permute(i.y+vec3(0.0,i1.y,1.0))+i.x+vec3(0.0,i1.x,1.0)); vec3 m = max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0); m = m*m; m = m*m; vec3 x = 2.0*fract(p*C.www)-1.0; vec3 h = abs(x)-0.5; vec3 ox = floor(x+0.5); vec3 a0 = x-ox; m *= 1.79284291400159-0.85373472095314*(a0*a0+h*h); vec3 g; g.x = a0.x*x0.x+h.x*x0.y; g.yz = a0.yz*x12.xz+h.yz*x12.yw; return 130.0*dot(m,g); }
-void main() { vec2 uv = vUv, p = uv-0.5; p.x *= u_resolution.x/u_resolution.y; float t = u_time*0.1; float n1=snoise(p*0.4+vec2(t*0.2,-t*0.3)), n2=snoise(p*0.55+vec2(-t*0.15,t*0.25)+n1*0.25), n3=snoise(p*0.75+vec2(t*0.1,-t*0.2)+n2*0.2), dist=length(p)*1.5; vec3 col=mix(u_bg*0.2,u_bg,1.0-smoothstep(0.3,1.2,dist)); col=mix(col,u_colors[0],smoothstep(-0.2,0.5,n1)*0.85); col=mix(col,u_colors[1],smoothstep(-0.1,0.6,n2)*0.7+u_colors[1]*(1.0-smoothstep(0.8,0.0,dist))*0.3); col=mix(col,u_colors[2],smoothstep(-0.3,0.4,n3)*0.6); col=mix(col,u_colors[3],smoothstep(0.0,0.7,n1*n2)*0.5); col+=(fract(sin(dot(uv,vec2(12.9898,78.233)))*43758.5453+u_time)-0.5)*u_grain*0.1; gl_FragColor=vec4(col,1.0); }
+void main() { vec2 uv = vUv, p = uv-0.5; p.x *= u_resolution.x/u_resolution.y; float t = u_time*0.1; float n1=snoise(p*0.4+vec2(t*0.2,-t*0.3)), n2=snoise(p*0.55+vec2(-t*0.15,t*0.25)+n1*0.25), dist=length(p)*1.5; vec3 col=mix(u_bg*0.2,u_bg,1.0-smoothstep(0.3,1.2,dist)); col=mix(col,u_colors[0],smoothstep(-0.2,0.5,n1)*0.85); col=mix(col,u_colors[1],smoothstep(-0.1,0.6,n2)*0.7+u_colors[1]*(1.0-smoothstep(0.8,0.0,dist))*0.3); col=mix(col,u_colors[3],smoothstep(0.0,0.7,n1*n2)*0.5); col+=(fract(sin(dot(uv,vec2(12.9898,78.233)))*43758.5453+u_time)-0.5)*u_grain*0.1; gl_FragColor=vec4(col,1.0); }
 `;
 
 function Velaris({ bg="#000000", colors=["#86efac","#4ade80","#059669","#000000"], speed=2.0, grain=0.3, height="100vh", className, children }: { bg?: string; colors?: string[]; speed?: number; grain?: number; height?: string; className?: string; children?: ReactNode }) {
@@ -43,7 +43,8 @@ function Velaris({ bg="#000000", colors=["#86efac","#4ade80","#059669","#000000"
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
     const pos = gl.getAttribLocation(program, "position"); gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
     const locs = { res: gl.getUniformLocation(program,"u_resolution"), time: gl.getUniformLocation(program,"u_time"), grain: gl.getUniformLocation(program,"u_grain"), colors: gl.getUniformLocation(program,"u_colors"), bg: gl.getUniformLocation(program,"u_bg") };
-    const resize = () => { const dpr = Math.min(window.devicePixelRatio, 2); canvas.width = container.clientWidth * dpr; canvas.height = container.clientHeight * dpr; gl.viewport(0, 0, canvas.width, canvas.height); };
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const resize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { const dpr = Math.min(window.devicePixelRatio, 2); canvas.width = container.clientWidth * dpr; canvas.height = container.clientHeight * dpr; gl.viewport(0, 0, canvas.width, canvas.height); }, 100); };
     const ro = new ResizeObserver(resize); ro.observe(container);
     let raf: number, lastT = 0; const render = (t: number) => { if (t - lastT >= 33) { lastT = t; gl.uniform2f(locs.res, canvas.width, canvas.height); gl.uniform1f(locs.time, t * 0.001 * speed); gl.uniform1f(locs.grain, grain); gl.uniform3f(locs.bg, ...hexToRgb(bg)); gl.uniform3fv(locs.colors, new Float32Array(colors.slice(0, 4).flatMap(hexToRgb))); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); } raf = requestAnimationFrame(render); };
     raf = requestAnimationFrame(render);
@@ -271,20 +272,25 @@ function TextFlippingBoard({ rows, text, className, duration = BASE_TOTAL_S }: {
   );
 }
 
-// ── App ─────────────────────────────────────────────────────────────────
-
-const DEMO_MSGS = ["STAY HUNGRY \nSTAY IN BED \n- STEVE JOBS", "hat did you get done this week?", "I burned $20 \nfor this shit.", "DONT WORRY \nBE HAPPY FFS.", "LADIES AND GENTLEMEN \nWELCOME TO F#!@# C!@$"];
+const DEMO_MSGS = [
+  process.env.NEXT_PUBLIC_BOARD_MSG_1 || "STAY HUNGRY \nSTAY IN BED \n- STEVE JOBS",
+  process.env.NEXT_PUBLIC_BOARD_MSG_2 || "hat did you get done this week?",
+  process.env.NEXT_PUBLIC_BOARD_MSG_3 || "I burned $20 \nfor this shit.",
+  process.env.NEXT_PUBLIC_BOARD_MSG_4 || "DONT WORRY \nBE HAPPY FFS.",
+  process.env.NEXT_PUBLIC_BOARD_MSG_5 || "LADIES AND GENTLEMEN \nWELCOME TO F#!@# C!@$",
+];
+const LANDING_TEXT = process.env.NEXT_PUBLIC_LANDING_TEXT || "You are not your job, you're not how much money you have in the bank. You are not the car you drive. You're not the contents of your wallet. You are not your fucking khakis. All singing, all dancing crap of the world.";
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.marno.pro/webhook/marno-chat";
 const KB_SLUG = process.env.NEXT_PUBLIC_KB_SLUG || "kbase";
 
 type Message = { id: string; role: 'user' | 'model' | 'system'; text: string; };
 
 const SUGGESTIONS = [
-  { label: "Get started", prompt: "How do I get started with the platform?" },
-  { label: "See templates", prompt: "Can you show me the available templates?" },
-  { label: "Pricing", prompt: "What are the pricing plans available?" },
-  { label: "Book a demo", prompt: "I would like to book a demo." },
-  { label: "Documentation", prompt: "Where can I find the API documentation?" }
+  { label: process.env.NEXT_PUBLIC_SUGGEST_1_LABEL || "Get started", prompt: process.env.NEXT_PUBLIC_SUGGEST_1_PROMPT || "How do I get started with the platform?" },
+  { label: process.env.NEXT_PUBLIC_SUGGEST_2_LABEL || "See templates", prompt: process.env.NEXT_PUBLIC_SUGGEST_2_PROMPT || "Can you show me the available templates?" },
+  { label: process.env.NEXT_PUBLIC_SUGGEST_3_LABEL || "Pricing", prompt: process.env.NEXT_PUBLIC_SUGGEST_3_PROMPT || "What are the pricing plans available?" },
+  { label: process.env.NEXT_PUBLIC_SUGGEST_4_LABEL || "Book a demo", prompt: process.env.NEXT_PUBLIC_SUGGEST_4_PROMPT || "I would like to book a demo." },
+  { label: process.env.NEXT_PUBLIC_SUGGEST_5_LABEL || "Documentation", prompt: process.env.NEXT_PUBLIC_SUGGEST_5_PROMPT || "Where can I find the API documentation?" },
 ];
 
 export default function App() {
@@ -349,74 +355,14 @@ export default function App() {
         <div className="flex w-full h-full flex-col items-center justify-center gap-8 px-4">
           <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
           <div className="w-full max-w-3xl">
-            <p className="text-left text-white/70 text-sm md:text-base leading-relaxed">
-              <span className="text-white/90">You</span>{" "}<span className="text-white/90">are not your job</span>,{" "}<span className="text-white/90">you&apos;re not how much money</span>{" "}you have in the bank. <span className="text-white/90">You are not the car</span> you drive.{" "}<span className="text-white/90">you&apos;re not the contents</span> of your wallet.{" "}<span className="text-white/90">You are not your fucking khakis</span>.{" "}<EncryptedText text="All singing, all dancing crap of the world." className="text-white/90" encryptedClassName="text-white/30" revealedClassName="text-white/90" />
-            </p>
+            <p className="text-left text-white/70 text-sm md:text-base leading-relaxed">{LANDING_TEXT.split('\n').map((line, i) => (<span key={i}>{line}{i < LANDING_TEXT.split('\n').length - 1 && <br />}</span>))}</p>
           </div>
         </div>
       </Velaris>
       <AnimatePresence>
-        {isOpen && (
-          <motion.div initial={{ opacity: 0, scale: 0.8, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8, y: 20 }} transition={{ duration: 0.2, ease: "easeOut" }} style={{ originX: 1, originY: 1 }} className="fixed bottom-24 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[400px] h-[600px] sm:h-[720px] max-h-[calc(100vh-8rem)] z-50 bg-white rounded-[24px] shadow-[0_12px_48px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden border border-gray-100 chat-widget">
-            <div className="bg-[#0D72FF] text-white px-4 py-[14px] flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-[26px] h-[26px] rounded-full bg-[#2A2E35] flex items-center justify-center overflow-hidden shrink-0">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="translate-y-[1px]"><path d="M4 17V10A4 4 0 0 1 12 10V17M12 17V10A4 4 0 0 1 20 10V17" /></svg>
-                </div>
-                <span className="font-semibold text-[15px] tracking-wide">Marno AI</span>
-              </div>
-              <div className="flex items-center gap-3.5">
-                <button onClick={handleReset} className="text-white hover:opacity-80 transition-opacity focus:outline-none" title="Reset chat"><RotateCw size={18} strokeWidth={2.5} /></button>
-                <button onClick={() => setIsOpen(false)} className="text-white hover:opacity-80 transition-opacity focus:outline-none"><X size={20} strokeWidth={2.5} /></button>
-              </div>
-            </div>
-            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col px-4 pt-6 pb-28">
-              <div className="flex flex-col items-center mb-6 text-center"><p className="text-[13px] text-gray-500 leading-relaxed max-w-[320px] text-center">Demo use free providers, expect slower replies.</p></div>
-              <div className="flex flex-col gap-1.5 w-full relative">
-                <AnimatePresence mode="popLayout" initial={true}>
-                  {messages.map((msg, index) => {
-                    const prevMsg = index > 0 ? messages[index - 1] : null;
-                    const isRoleChange = prevMsg && (prevMsg.role !== msg.role || (prevMsg.role === 'system' && msg.role === 'model'));
-                    const isUser = msg.role === 'user';
-                    const isAi = msg.role === 'model' || msg.role === 'system';
-                    const parts = isUser ? [msg.text] : msg.text.split(/(?:\r?\n){2,}/).filter(t => t.trim().length > 0);
-                    if (parts.length === 0 && isAi) parts.push("");
-                    return (
-                      <motion.div layout={isUser ? true : "position"} key={msg.id} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }} transition={{ duration: 0.3, ease: "easeOut" }} className={`flex flex-col gap-1.5 w-full origin-bottom ${isRoleChange ? 'mt-3' : ''} ${isUser ? 'items-end' : 'items-start'}`}>
-                        {parts.map((part, pIdx) => (
-                          <motion.div layoutId={isUser && pIdx === 0 ? `suggestion-${msg.text}` : undefined} key={pIdx} className={`px-[16px] py-2 rounded-[12px] text-[15px] w-fit max-w-[88%] leading-snug overflow-hidden ${isUser ? 'bg-[#0D72FF] text-white rounded-tr-sm' : 'bg-[#F0F2F5] text-[#1E1E1E] rounded-tl-sm'}`}>
-                            <div className="[&>p]:m-0 [&>p:not(:last-child)]:mb-3 [&>ul]:my-2 [&>ul]:pl-5 [&>ul]:list-disc [&>ol]:my-2 [&>ol]:pl-5 [&>ol]:list-decimal [&>strong]:font-semibold [&_strong]:font-semibold"><ReactMarkdown remarkPlugins={[remarkBreaks]}>{part || ' '}</ReactMarkdown></div>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    );
-                  })}
-                  {isLoading && (
-                    <motion.div layout key="loading-indicator" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }} transition={{ duration: 0.3, ease: "easeOut" }} className="flex justify-start mt-3 w-full">
-                      <div className="bg-[#F0F2F5] text-[#1E1E1E] px-[16px] py-2 rounded-[12px] rounded-tl-sm text-[15px] w-fit max-w-[88%] leading-snug flex items-center gap-2"><Loader2 size={16} className="animate-spin text-gray-500" /><span className="text-gray-500">Thinking...</span></div>
-                    </motion.div>
-                  )}
-                  {!isLoading && messages.length === 2 && messages[0].role === 'system' && (
-                    <motion.div layout key="suggestions" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10, filter: "blur(4px)", transition: { duration: 0.15 } }} transition={{ duration: 0.3, delay: 0.1, ease: "easeOut" }} className="flex flex-wrap gap-2 mt-2 justify-start w-full">
-                      {SUGGESTIONS.map((suggestion) => (
-                        <motion.button layoutId={`suggestion-${suggestion.prompt}`} key={suggestion.prompt} onClick={() => handleSend(suggestion.prompt)} className="bg-[#EBF5FF] text-[#0D72FF] hover:bg-[#D6EAFC] px-[14px] py-[8px] rounded-[10px] text-[14.5px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">{suggestion.label}</motion.button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <div ref={messagesEndRef} />
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-4 pt-12 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none">
-              <div className="relative flex items-center rounded-full bg-white border-2 border-gray-200 pointer-events-auto">
-                <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder="Message..." disabled={isLoading} className="w-full bg-transparent text-gray-900 placeholder-[#9A9A9A] rounded-full pl-5 pr-12 py-[10px] text-[15px] focus:outline-none focus:ring-[1.5px] focus:ring-[#0D72FF] transition-shadow disabled:opacity-70 disabled:cursor-not-allowed" />
-                <button onClick={() => handleSend()} disabled={isInputEmpty || isLoading} className={`absolute top-1/2 -translate-y-1/2 right-[5px] w-[30px] h-[30px] flex items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${isInputEmpty || isLoading ? 'bg-[#E5E5E5] text-[#8C8C8C] cursor-not-allowed' : 'bg-[#0D72FF] text-white hover:bg-blue-600 cursor-pointer'}`}><ArrowUp size={18} strokeWidth={2.5} /></button>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {isOpen && <ChatWidget onClose={() => setIsOpen(false)} />}
       </AnimatePresence>
-      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-12 right-4 sm:right-6 z-50 rounded-full overflow-hidden w-10 h-10 shadow-[0_4px_12px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:scale-110 hover:rotate-12 active:scale-95 transition-all duration-200">
+      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 rounded-full overflow-hidden w-10 h-10 shadow-[0_4px_12px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:scale-110 hover:rotate-12 active:scale-95 transition-all duration-200">
         <img src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/green.jpg" alt="Chat" className="w-full h-full object-cover" />
       </button>
     </div>
