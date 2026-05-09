@@ -45,7 +45,7 @@ function Velaris({ bg="#000000", colors=["#86efac","#4ade80","#059669","#000000"
     const locs = { res: gl.getUniformLocation(program,"u_resolution"), time: gl.getUniformLocation(program,"u_time"), grain: gl.getUniformLocation(program,"u_grain"), colors: gl.getUniformLocation(program,"u_colors"), bg: gl.getUniformLocation(program,"u_bg") };
     const resize = () => { const dpr = Math.min(window.devicePixelRatio, 2); canvas.width = container.clientWidth * dpr; canvas.height = container.clientHeight * dpr; gl.viewport(0, 0, canvas.width, canvas.height); };
     const ro = new ResizeObserver(resize); ro.observe(container);
-    let raf: number; const render = (t: number) => { gl.uniform2f(locs.res, canvas.width, canvas.height); gl.uniform1f(locs.time, t * 0.001 * speed); gl.uniform1f(locs.grain, grain); gl.uniform3f(locs.bg, ...hexToRgb(bg)); gl.uniform3fv(locs.colors, new Float32Array(colors.slice(0, 4).flatMap(hexToRgb))); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); raf = requestAnimationFrame(render); };
+    let raf: number, lastT = 0; const render = (t: number) => { if (t - lastT >= 33) { lastT = t; gl.uniform2f(locs.res, canvas.width, canvas.height); gl.uniform1f(locs.time, t * 0.001 * speed); gl.uniform1f(locs.grain, grain); gl.uniform3f(locs.bg, ...hexToRgb(bg)); gl.uniform3fv(locs.colors, new Float32Array(colors.slice(0, 4).flatMap(hexToRgb))); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); } raf = requestAnimationFrame(render); };
     raf = requestAnimationFrame(render);
     return () => { ro.disconnect(); cancelAnimationFrame(raf); };
   }, [bg, colors, speed, grain]);
@@ -114,7 +114,7 @@ const EncryptedText = ({ text, className, revealDelayMs=50, charset=DEFAULT_CHAR
 
 const FLAP_CHARS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$()-+&=;:'\"%,./?°";
 const BOARD_ROWS = 6, BOARD_COLS = 22;
-const COL_D = 30, ROW_D = 20, STEP_MS = 55, FLIP_S = 0.35;
+const COL_D = 30, ROW_D = 20, STEP_MS = 35, FLIP_S = 0.25;
 const BASE_TOTAL_S = ((BOARD_COLS - 1) * COL_D + (BOARD_ROWS - 1) * ROW_D + 8 * STEP_MS) / 1000;
 
 type AccentColor = { top: string; bottom: string; text: string; };
@@ -150,7 +150,7 @@ const FlapCell = React.memo(function FlapCell({ target, delay, stepMs, flipDurat
     if (normalized === tgtRef.current) return;
     tgtRef.current = normalized;
     if (normalized === " " && curRef.current === " ") return;
-    const scrambleCount = normalized === " " ? 8 + Math.floor(Math.random() * 8) : 25 + Math.floor(Math.random() * 15);
+    const scrambleCount = normalized === " " ? 5 + Math.floor(Math.random() * 4) : 12 + Math.floor(Math.random() * 6);
     const runStep = (i: number) => {
       const isLast = i === scrambleCount;
       const ch = isLast ? normalized : FLAP_CHARS[1 + Math.floor(Math.random() * (FLAP_CHARS.length - 1))];
