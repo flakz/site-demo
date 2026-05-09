@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+
+const hexToRgb = (hex: string): [number, number, number] => {
+  const h = hex.replace("#", "");
+  return [
+    parseInt(h.slice(0, 2), 16) / 255,
+    parseInt(h.slice(2, 4), 16) / 255,
+    parseInt(h.slice(4, 6), 16) / 255,
+  ];
+};
 
 const vertexShaderGLSL = `
 attribute vec2 position;
@@ -90,7 +99,7 @@ export interface VelarisProps {
   grain?: number;
   height?: string;
   className?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 const DEFAULT_COLORS = ["#86efac", "#4ade80", "#059669", "#000000"];
@@ -106,15 +115,6 @@ const Velaris = ({
 }: VelarisProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-
-  const hexToRgb = (hex: string): [number, number, number] => {
-    const h = hex.replace("#", "");
-    return [
-      parseInt(h.slice(0, 2), 16) / 255,
-      parseInt(h.slice(2, 4), 16) / 255,
-      parseInt(h.slice(4, 6), 16) / 255,
-    ];
-  };
 
   useEffect(() => {
     const canvas = canvasRef.current;

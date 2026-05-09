@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "motion/react";
 import { clsx, type ClassValue } from "clsx";
-function cn(...a: ClassValue[]) { return clsx(a); }
 
 type EncryptedTextProps = {
   text: string;
@@ -88,16 +87,16 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
   if (!text) return null;
 
   return (
-    <motion.span ref={ref} className={cn(className)} aria-label={text} role="text" suppressHydrationWarning>
+    <motion.span ref={ref} className={clsx(className)} aria-label={text} role="text" suppressHydrationWarning>
       {!hasStarted ? (
-        <span className={cn(encryptedClassName)} suppressHydrationWarning>
+        <span className={encryptedClassName} suppressHydrationWarning>
           {" ".repeat(text.length)}
         </span>
       ) : (
         text.split("").map((char, index) => {
           const isRevealed = index < revealCount;
           const displayChar = isRevealed ? char : char === " " ? " " : (scrambleCharsRef.current[index] ?? generateRandomCharacter(charset));
-          return <span key={index} className={cn(isRevealed ? revealedClassName : encryptedClassName)}>{displayChar}</span>;
+          return <span key={index} className={isRevealed ? revealedClassName : encryptedClassName}>{displayChar}</span>;
         })
       )}
     </motion.span>
