@@ -9,9 +9,6 @@ import remarkBreaks from "remark-breaks";
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.marno.pro/webhook/marno-chat";
 const KB_SLUG = process.env.NEXT_PUBLIC_KB_SLUG || "kbase";
 
-const GREETING_1 = process.env.NEXT_PUBLIC_GREETING_1 || "Hi there! I'm an AI agent trained on docs, help articles, and other important content.";
-const GREETING_2 = process.env.NEXT_PUBLIC_GREETING_2 || "How can I best help you today?";
-
 type Message = { id: string; role: 'user' | 'model' | 'system'; text: string; };
 
 const SUGGESTIONS = [
@@ -21,6 +18,9 @@ const SUGGESTIONS = [
   { label: process.env.NEXT_PUBLIC_SUGGEST_4_LABEL || "Book a demo", prompt: process.env.NEXT_PUBLIC_SUGGEST_4_PROMPT || "I would like to book a demo." },
   { label: process.env.NEXT_PUBLIC_SUGGEST_5_LABEL || "Documentation", prompt: process.env.NEXT_PUBLIC_SUGGEST_5_PROMPT || "Where can I find the API documentation?" }
 ];
+
+const GREETING_1 = process.env.NEXT_PUBLIC_GREETING_1 || "Hi there! I'm an AI agent trained on docs, help articles, and other important content.";
+const GREETING_2 = process.env.NEXT_PUBLIC_GREETING_2 || "How can I best help you today?";
 
 export default function ChatWidget({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<Message[]>([
