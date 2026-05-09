@@ -299,24 +299,20 @@ function AccordionFAQ() {
 
   const items = [
     {
-      title: "How do I place an order?",
-      content:
-        "Browse our products, add items to your cart, and proceed to checkout. You'll need to provide shipping and payment information to complete your purchase.",
+      title: process.env.NEXT_PUBLIC_FAQ_1_TITLE || "How do I place an order?",
+      content: process.env.NEXT_PUBLIC_FAQ_1_CONTENT || "Browse our products, add items to your cart, and proceed to checkout. You'll need to provide shipping and payment information to complete your purchase.",
     },
     {
-      title: "Can I modify or cancel my order?",
-      content:
-        "Yes, you can modify or cancel your order before it's shipped. Once your order is processed, you can't make changes.",
+      title: process.env.NEXT_PUBLIC_FAQ_2_TITLE || "Can I modify or cancel my order?",
+      content: process.env.NEXT_PUBLIC_FAQ_2_CONTENT || "Yes, you can modify or cancel your order before it's shipped. Once your order is processed, you can't make changes.",
     },
     {
-      title: "What payment methods do you accept?",
-      content:
-        "We accept all major credit cards, debit cards, and PayPal. Your payment information is encrypted and processed securely.",
+      title: process.env.NEXT_PUBLIC_FAQ_3_TITLE || "What payment methods do you accept?",
+      content: process.env.NEXT_PUBLIC_FAQ_3_CONTENT || "We accept all major credit cards, debit cards, and PayPal. Your payment information is encrypted and processed securely.",
     },
     {
-      title: "How long does shipping take?",
-      content:
-        "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business day delivery.",
+      title: process.env.NEXT_PUBLIC_FAQ_4_TITLE || "How long does shipping take?",
+      content: process.env.NEXT_PUBLIC_FAQ_4_CONTENT || "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business day delivery.",
     },
   ];
 
