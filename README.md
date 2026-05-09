@@ -1,21 +1,18 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Marno AI Chat Widget
 
-# Run and deploy your AI Studio app
+Landing page with animated background, flip board effect, and integrated chat widget.
 
-This contains everything you need to run your app locally.
+## Setup
 
-View your app in AI Studio: https://ai.studio/apps/30dc2135-a047-4150-ab7b-112a253991e4
+```bash
+npm install
+cp .env.example .env.local
+# Edit .env.local with your values
+npm run dev
+```
 
-## Run Locally
+## Environment Variables
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-
+- `NEXT_PUBLIC_WEBHOOK_URL` — n8n webhook endpoint
+- `NEXT_PUBLIC_KB_SLUG` — Knowledge base slug
+- `GEMINI_API_KEY` — Gemini API key (optional for local dev)
