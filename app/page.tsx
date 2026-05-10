@@ -59,6 +59,37 @@ function Velaris({ bg="#000000", colors=["#86efac","#4ade80","#059669","#000000"
   );
 }
 
+// ── LandingText (parse markers: *bold* = highlight, $scramble$ = animated) ──
+
+function parseLandingText(text: string) {
+  const parts: { text: string; type: 'plain' | 'highlight' | 'scramble' }[] = [];
+  const regex = /(\*[^*]+\*|\$[^*$]+\$)/g;
+  let lastIndex = 0;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) parts.push({ text: text.slice(lastIndex, match.index), type: 'plain' });
+    const content = match[0].slice(1, -1);
+    if (match[0].startsWith('*')) parts.push({ text: content, type: 'highlight' });
+    else if (match[0].startsWith('$')) parts.push({ text: content, type: 'scramble' });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) parts.push({ text: text.slice(lastIndex), type: 'plain' });
+  return parts;
+}
+
+function LandingText({ text }: { text: string }) {
+  const parts = parseLandingText(text);
+  return (
+    <p className="text-left text-white/70 text-sm md:text-base leading-relaxed">
+      {parts.map((part, i) => {
+        if (part.type === 'plain') return <span key={i}>{part.text}</span>;
+        if (part.type === 'highlight') return <strong key={i} className="font-semibold text-white">{part.text}</strong>;
+        return <EncryptedText key={i} text={part.text} revealedClassName="font-semibold text-white" encryptedClassName="font-semibold text-white/20" />;
+      })}
+    </p>
+  );
+}
+
 // ── EncryptedText ──────────────────────────────────────────────────────
 
 const DEFAULT_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-={}[];:,.<>/?";
@@ -280,7 +311,7 @@ const DEMO_MSGS = [
   process.env.NEXT_PUBLIC_BOARD_MSG_4 || "DONT WORRY \nBE HAPPY FFS.",
   process.env.NEXT_PUBLIC_BOARD_MSG_5 || "LADIES AND GENTLEMEN \nWELCOME TO F#!@# C!@$",
 ];
-const LANDING_TEXT = process.env.NEXT_PUBLIC_LANDING_TEXT || "You are not your job, you're not how much money you have in the bank. You are not the car you drive. You're not the contents of your wallet. You are not your fucking khakis. All singing, all dancing crap of the world.";
+const LANDING_TEXT = process.env.NEXT_PUBLIC_LANDING_TEXT || "You are not your job, you're not how much money you have in the bank. You are not the car you drive. You're not the contents of your wallet. *$All singing, all dancing crap of the world.*";
 const GREETING_1 = process.env.NEXT_PUBLIC_GREETING_1 || "Hi there! I'm an AI agent trained on docs, help articles, and other important content.";
 const GREETING_2 = process.env.NEXT_PUBLIC_GREETING_2 || "How can I best help you today?";
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.marno.pro/webhook/marno-chat";
@@ -383,7 +414,7 @@ export default function App() {
       <Velaris height="100vh" bg="#000000" colors={["#86efac", "#4ade80", "#059669", "#000000"]} speed={2} grain={0.3}>
         <div className="flex w-full h-full flex-col items-center justify-center gap-8 px-4">
           <div className="w-full max-w-3xl">
-            <p className="text-left text-white/70 text-sm md:text-base leading-relaxed">{LANDING_TEXT.split('\n').map((line, i) => (<span key={i}>{line}{i < LANDING_TEXT.split('\n').length - 1 && <br />}</span>))}</p>
+            <LandingText text={LANDING_TEXT} />
           </div>
           <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
           <AccordionFAQ />
