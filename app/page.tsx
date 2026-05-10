@@ -296,62 +296,25 @@ const SUGGESTIONS = [
   { label: process.env.NEXT_PUBLIC_SUGGEST_5_LABEL || "Documentation", prompt: process.env.NEXT_PUBLIC_SUGGEST_5_PROMPT || "Where can I find the API documentation?" },
 ];
 
+const FAQ_ITEMS = [
+  { title: process.env.NEXT_PUBLIC_FAQ_1_TITLE || "How do I place an order?", content: process.env.NEXT_PUBLIC_FAQ_1_CONTENT || "Browse our products, add items to your cart, and proceed to checkout. You'll need to provide shipping and payment information to complete your purchase." },
+  { title: process.env.NEXT_PUBLIC_FAQ_2_TITLE || "Can I modify or cancel my order?", content: process.env.NEXT_PUBLIC_FAQ_2_CONTENT || "Yes, you can modify or cancel your order before it's shipped. Once your order is processed, you can't make changes." },
+  { title: process.env.NEXT_PUBLIC_FAQ_3_TITLE || "What payment methods do you accept?", content: process.env.NEXT_PUBLIC_FAQ_3_CONTENT || "We accept all major credit cards, debit cards, and PayPal. Your payment information is encrypted and processed securely." },
+  { title: process.env.NEXT_PUBLIC_FAQ_4_TITLE || "How long does shipping take?", content: process.env.NEXT_PUBLIC_FAQ_4_CONTENT || "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business day delivery." },
+];
+
 function AccordionFAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
-
-  const items = [
-    {
-      title: process.env.NEXT_PUBLIC_FAQ_1_TITLE || "How do I place an order?",
-      content: process.env.NEXT_PUBLIC_FAQ_1_CONTENT || "Browse our products, add items to your cart, and proceed to checkout. You'll need to provide shipping and payment information to complete your purchase.",
-    },
-    {
-      title: process.env.NEXT_PUBLIC_FAQ_2_TITLE || "Can I modify or cancel my order?",
-      content: process.env.NEXT_PUBLIC_FAQ_2_CONTENT || "Yes, you can modify or cancel your order before it's shipped. Once your order is processed, you can't make changes.",
-    },
-    {
-      title: process.env.NEXT_PUBLIC_FAQ_3_TITLE || "What payment methods do you accept?",
-      content: process.env.NEXT_PUBLIC_FAQ_3_CONTENT || "We accept all major credit cards, debit cards, and PayPal. Your payment information is encrypted and processed securely.",
-    },
-    {
-      title: process.env.NEXT_PUBLIC_FAQ_4_TITLE || "How long does shipping take?",
-      content: process.env.NEXT_PUBLIC_FAQ_4_CONTENT || "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business day delivery.",
-    },
-  ];
-
   return (
     <div className="w-full max-w-3xl">
-      {items.map((item, idx) => (
-        <div
-          key={idx}
-          className={cn(
-            idx > 0 && "border-t border-white/10",
-          )}
-        >
-          <button
-            onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
-            className="flex w-full items-center justify-between py-3 text-left text-white/80 hover:text-white transition-colors"
-          >
+      {FAQ_ITEMS.map((item, idx) => (
+        <div key={idx} className={cn(idx > 0 && "border-t border-white/10")}>
+          <button onClick={() => setOpenIdx(openIdx === idx ? null : idx)} className="flex w-full items-center justify-between py-3 text-left text-white/80 hover:text-white transition-colors">
             <span className="text-sm md:text-base font-medium">{item.title}</span>
-            <motion.span
-              animate={{ rotate: openIdx === idx ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="text-white/50"
-            >
-              <ChevronDown size={18} />
-            </motion.span>
+            <motion.span animate={{ rotate: openIdx === idx ? 180 : 0 }} transition={{ duration: 0.2 }} className="text-white/50"><ChevronDown size={18} /></motion.span>
           </button>
-          <motion.div
-            initial={false}
-            animate={{
-              height: openIdx === idx ? "auto" : 0,
-              opacity: openIdx === idx ? 1 : 0,
-            }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <p className="pb-3 text-sm text-white/50 leading-relaxed">
-              {item.content}
-            </p>
+          <motion.div initial={false} animate={{ height: openIdx === idx ? "auto" : 0, opacity: openIdx === idx ? 1 : 0 }} transition={{ duration: 0.25, ease: "easeInOut" }} className="overflow-hidden">
+            <p className="pb-3 text-sm text-white/50 leading-relaxed">{item.content}</p>
           </motion.div>
         </div>
       ))}
@@ -361,8 +324,8 @@ function AccordionFAQ() {
 
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([
-    { id: crypto.randomUUID(), role: 'system', text: "Hi there! I'm an AI agent trained on docs, help articles, and other important content." },
-    { id: crypto.randomUUID(), role: 'system', text: "How can I best help you today?" }
+    { id: crypto.randomUUID(), role: 'system', text: GREETING_1 },
+    { id: crypto.randomUUID(), role: 'system', text: GREETING_2 }
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
