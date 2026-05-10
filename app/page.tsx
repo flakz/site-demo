@@ -281,6 +281,8 @@ const DEMO_MSGS = [
   process.env.NEXT_PUBLIC_BOARD_MSG_5 || "LADIES AND GENTLEMEN \nWELCOME TO F#!@# C!@$",
 ];
 const LANDING_TEXT = process.env.NEXT_PUBLIC_LANDING_TEXT || "You are not your job, you're not how much money you have in the bank. You are not the car you drive. You're not the contents of your wallet. You are not your fucking khakis. All singing, all dancing crap of the world.";
+const GREETING_1 = process.env.NEXT_PUBLIC_GREETING_1 || "Hi there! I'm an AI agent trained on docs, help articles, and other important content.";
+const GREETING_2 = process.env.NEXT_PUBLIC_GREETING_2 || "How can I best help you today?";
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.marno.pro/webhook/marno-chat";
 const KB_SLUG = process.env.NEXT_PUBLIC_KB_SLUG || "kbase";
 
@@ -405,8 +407,8 @@ export default function App() {
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleSend(); };
   const handleReset = () => {
     setMessages([
-      { id: crypto.randomUUID(), role: 'system', text: "Hi there! I'm an AI agent trained on docs, help articles, and other important content." },
-      { id: crypto.randomUUID(), role: 'system', text: "How can I best help you today?" }
+      { id: crypto.randomUUID(), role: 'system', text: GREETING_1 },
+      { id: crypto.randomUUID(), role: 'system', text: GREETING_2 }
     ]);
     setInputValue("");
     sessionIdRef.current = crypto.randomUUID();
