@@ -117,7 +117,7 @@ const EncryptedText = ({ text, className, revealDelayMs=50, charset=DEFAULT_CHAR
       const elapsedMs = now - startTimeRef.current;
       const currentRevealCount = Math.min(text.length, Math.floor(elapsedMs / Math.max(1, revealDelayMs)));
       setRevealCount(currentRevealCount);
-      if (currentRevealCount >= text.length) return;
+      if (currentRevealCount >= text.length) { animationFrameRef.current = null; return; }
       if (now - lastFlipTimeRef.current >= Math.max(0, flipDelayMs)) {
         for (let index = 0; index < text.length; index += 1) {
           if (index >= currentRevealCount) scrambleCharsRef.current[index] = text[index] === " " ? " " : charset[Math.floor(Math.random() * charset.length)];
