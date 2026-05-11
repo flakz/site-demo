@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -18,7 +17,6 @@
   --color-foreground: var(--foreground);
   --color-background-alt: var(--background-alt);
   --color-background-gray: var(--background-gray);
-  --font-serif: 'Instrument Serif', Georgia, serif;
   --font-sans: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
   --shadow-custom: inset 0 0 .5px 0 rgba(0,0,0,.11);
   --radius-lg: var(--radius-lg);
@@ -28,10 +26,6 @@
 body {
   color: var(--foreground);
   font-family: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Instrument Serif', Georgia, serif;
 }
 
 p, span, button, input, li, a {
