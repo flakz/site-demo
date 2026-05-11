@@ -3,9 +3,8 @@
 import React, { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import dynamic from "next/dynamic";
-import { clsx, type ClassValue } from "clsx";
 import { ChevronDown } from "lucide-react";
-function cn(...a: ClassValue[]) { return clsx(a); }
+function cn(...a: (string | undefined | null | false)[]) { return a.filter(Boolean).join(" "); }
 
 // Lazy loaded chat widget
 const ChatWidget = dynamic(() => import("./chat-widget").then(m => m.default), { ssr: false });
