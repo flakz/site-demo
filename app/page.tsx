@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useMemo, type ReactNode, type KeyboardEvent } from "react";
+import React, { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import dynamic from "next/dynamic";
 import { clsx, type ClassValue } from "clsx";
@@ -305,27 +305,13 @@ function TextFlippingBoard({ rows, text, className, duration = BASE_TOTAL_S }: {
 }
 
 const DEMO_MSGS = [
-  process.env.NEXT_PUBLIC_BOARD_MSG_1 || "STAY HUNGRY \nSTAY IN BED \n- STEVE JOBS",
+  (process.env.NEXT_PUBLIC_BOARD_MSG_1 || "STAY HUNGRY,STAY IN BED,- STEVE JOBS").split(",").join("\n"),
   process.env.NEXT_PUBLIC_BOARD_MSG_2 || "hat did you get done this week?",
-  process.env.NEXT_PUBLIC_BOARD_MSG_3 || "I burned $20 \nfor this shit.",
-  process.env.NEXT_PUBLIC_BOARD_MSG_4 || "DONT WORRY \nBE HAPPY FFS.",
-  process.env.NEXT_PUBLIC_BOARD_MSG_5 || "LADIES AND GENTLEMEN \nWELCOME TO F#!@# C!@$",
+  (process.env.NEXT_PUBLIC_BOARD_MSG_3 || "I burned $20,for this shit.").split(",").join("\n"),
+  (process.env.NEXT_PUBLIC_BOARD_MSG_4 || "DONT WORRY,BE HAPPY FFS.").split(",").join("\n"),
+  (process.env.NEXT_PUBLIC_BOARD_MSG_5 || "LADIES AND GENTLEMEN,WELCOME TO F#!@# C!@$").split(",").join("\n"),
 ];
 const LANDING_TEXT = process.env.NEXT_PUBLIC_LANDING_TEXT || "You are not your job, you're not how much money you have in the bank. You are not the car you drive. You're not the contents of your wallet. *$All singing, all dancing crap of the world.*";
-const GREETING_1 = process.env.NEXT_PUBLIC_GREETING_1 || "Hi there! I'm an AI agent trained on docs, help articles, and other important content.";
-const GREETING_2 = process.env.NEXT_PUBLIC_GREETING_2 || "How can I best help you today?";
-const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.marno.pro/webhook/marno-chat";
-const KB_SLUG = process.env.NEXT_PUBLIC_KB_SLUG || "kbase";
-
-type Message = { id: string; role: 'user' | 'model' | 'system'; text: string; };
-
-const SUGGESTIONS = [
-  { label: process.env.NEXT_PUBLIC_SUGGEST_1_LABEL || "Get started", prompt: process.env.NEXT_PUBLIC_SUGGEST_1_PROMPT || "How do I get started with the platform?" },
-  { label: process.env.NEXT_PUBLIC_SUGGEST_2_LABEL || "See templates", prompt: process.env.NEXT_PUBLIC_SUGGEST_2_PROMPT || "Can you show me the available templates?" },
-  { label: process.env.NEXT_PUBLIC_SUGGEST_3_LABEL || "Pricing", prompt: process.env.NEXT_PUBLIC_SUGGEST_3_PROMPT || "What are the pricing plans available?" },
-  { label: process.env.NEXT_PUBLIC_SUGGEST_4_LABEL || "Book a demo", prompt: process.env.NEXT_PUBLIC_SUGGEST_4_PROMPT || "I would like to book a demo." },
-  { label: process.env.NEXT_PUBLIC_SUGGEST_5_LABEL || "Documentation", prompt: process.env.NEXT_PUBLIC_SUGGEST_5_PROMPT || "Where can I find the API documentation?" },
-];
 
 const FAQ_ITEMS = [
   { title: process.env.NEXT_PUBLIC_FAQ_1_TITLE || "How do I place an order?", content: process.env.NEXT_PUBLIC_FAQ_1_CONTENT || "Browse our products, add items to your cart, and proceed to checkout. You'll need to provide shipping and payment information to complete your purchase." },
@@ -354,60 +340,10 @@ function AccordionFAQ() {
 }
 
 export default function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: crypto.randomUUID(), role: 'system', text: GREETING_1 },
-    { id: crypto.randomUUID(), role: 'system', text: GREETING_2 }
-  ]);
-  const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [demoIdx, setDemoIdx] = useState(0);
-  const sessionIdRef = useRef<string>(crypto.randomUUID());
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { sessionIdRef.current = crypto.randomUUID(); }, []);
   useEffect(() => { const id = setInterval(() => setDemoIdx(i => (i + 1) % DEMO_MSGS.length), 6000); return () => clearInterval(id); }, []);
-
-  const handleSend = async (textOverride?: string) => {
-    const textToSend = textOverride || inputValue;
-    const trimmed = textToSend.trim();
-    if (!trimmed) return;
-    if (!textOverride) setInputValue("");
-    const userMsgObj: Message = { id: crypto.randomUUID(), role: 'user', text: trimmed };
-    setMessages(prev => [...prev, userMsgObj]);
-    setIsLoading(true);
-    try {
-      const res = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: trimmed, sessionId: sessionIdRef.current, slug: KB_SLUG }) });
-      if (!res.ok) throw new Error(`Webhook returned ${res.status}`);
-      const resp = await res.json();
-      const responseText = resp.response || "";
-      const modelMessageId = crypto.randomUUID();
-      setIsLoading(false);
-      setMessages(prev => [...prev, { id: modelMessageId, role: 'model', text: "" }]);
-      const chars = responseText.split("");
-      let fullText = "";
-      for (let i = 0; i < chars.length; i += 2) {
-        fullText += chars[i] + (chars[i + 1] || "");
-        setMessages(prev => prev.map(m => m.id === modelMessageId ? { ...m, text: fullText } : m));
-        await new Promise(r => setTimeout(r, 10));
-      }
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', text: "I'm sorry, I encountered an error. Please check your connection or try again later." }]);
-      setIsLoading(false);
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleSend(); };
-  const handleReset = () => {
-    setMessages([
-      { id: crypto.randomUUID(), role: 'system', text: GREETING_1 },
-      { id: crypto.randomUUID(), role: 'system', text: GREETING_2 }
-    ]);
-    setInputValue("");
-    sessionIdRef.current = crypto.randomUUID();
-  };
-  const isInputEmpty = inputValue.trim().length === 0;
 
   return (
     <div className="min-h-screen bg-white">
