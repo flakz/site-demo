@@ -306,7 +306,7 @@ function TextFlippingBoard({ rows, text, className, duration = BASE_TOTAL_S }: {
 
 const DEMO_MSGS = [
   (process.env.NEXT_PUBLIC_BOARD_MSG_1 || "STAY HUNGRY,STAY IN BED,- STEVE JOBS").split(",").join("\n"),
-  process.env.NEXT_PUBLIC_BOARD_MSG_2 || "hat did you get done this week?",
+  (process.env.NEXT_PUBLIC_BOARD_MSG_2 || "hat did you get done this week?").split(",").join("\n"),
   (process.env.NEXT_PUBLIC_BOARD_MSG_3 || "I burned $20,for this shit.").split(",").join("\n"),
   (process.env.NEXT_PUBLIC_BOARD_MSG_4 || "DONT WORRY,BE HAPPY FFS.").split(",").join("\n"),
   (process.env.NEXT_PUBLIC_BOARD_MSG_5 || "LADIES AND GENTLEMEN,WELCOME TO F#!@# C!@$").split(",").join("\n"),
