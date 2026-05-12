@@ -35,13 +35,13 @@ const reviews = [
   },
   {
     name: "Kira Athrun",
-    username: "@kathrun2",
+    username: "@kathrun",
     body: "\"What surprised us most was how quickly our team adapted. Minimal learning curve, excellent documentation, and powerful features make it a must-have for modern SaaS companies.\"",
     profile: "https://images.shadcnspace.com/assets/profiles/albert.webp",
   },
   {
     name: "Ken Masters",
-    username: "@kmasters2",
+    username: "@kmasters",
     body: "\"Our productivity has nearly doubled since onboarding. Automation features removed repetitive tasks, allowing our team to focus on building instead of managing operations.\"",
     profile: "https://images.shadcnspace.com/assets/profiles/rough.webp",
   },
@@ -63,7 +63,7 @@ const ReviewCard = ({
 }) => {
   return (
     <div className="relative h-full w-64 cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-      <div className="p-0 flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex flex-row items-center gap-2">
           <img
             className="rounded-full"
@@ -87,9 +87,7 @@ const ReviewCard = ({
 
 export const Demo = () => {
   return (
-    <div className="relative flex w-full max-w-3xl flex-col items-center justify-center overflow-hidden rounded-xl">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1/4 bg-[linear-gradient(to right,rgba(0,0,0,0.15),transparent)]" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-1/4 bg-[linear-gradient(to left,rgba(0,0,0,0.15),transparent)]" />
+    <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
       <Marquee pauseOnHover className="[--duration:20s]">
         {firstRow.map((review) => (
           <ReviewCard key={review.username} {...review} />
@@ -100,6 +98,6 @@ export const Demo = () => {
           <ReviewCard key={review.username} {...review} />
         ))}
       </Marquee>
-          </div>
+      </div>
   );
 };

@@ -342,7 +342,9 @@ export default function App() {
           <div className="w-full max-w-3xl">
             <LandingText text={LANDING_TEXT} />
           </div>
-          <Demo />
+          <div className="w-full max-w-3xl">
+            <Demo />
+          </div>
           <AccordionFAQ />
         </div>
       </Velaris>
