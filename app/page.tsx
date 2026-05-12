@@ -145,7 +145,7 @@ const EncryptedText = ({ text, className, revealDelayMs=50, charset=DEFAULT_CHAR
 // ── TextFlippingBoard ──────────────────────────────────────────────────
 
 const FLAP_CHARS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$()-+&=;:'\"%,./?°";
-const BOARD_ROWS = 6, BOARD_COLS = 22;
+const BOARD_ROWS = 3, BOARD_COLS = 22;
 const COL_D = 30, ROW_D = 20, STEP_MS = 35, FLIP_S = 0.25;
 const BASE_TOTAL_S = ((BOARD_COLS - 1) * COL_D + (BOARD_ROWS - 1) * ROW_D + 8 * STEP_MS) / 1000;
 
@@ -351,7 +351,9 @@ export default function App() {
           <div className="w-full max-w-3xl">
             <LandingText text={LANDING_TEXT} />
           </div>
-          <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
+          <div className="w-full max-w-3xl hidden md:block">
+            <TextFlippingBoard text={DEMO_MSGS[demoIdx]} />
+          </div>
           <AccordionFAQ />
         </div>
       </Velaris>
