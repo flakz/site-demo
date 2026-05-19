@@ -14,6 +14,13 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
+  const suggestions: { label: string; prompt: string }[] = [];
+  for (let i = 1; i <= 5; i++) {
+    const label = process.env[`NEXT_PUBLIC_SUGGEST_${i}_LABEL`];
+    const prompt = process.env[`NEXT_PUBLIC_SUGGEST_${i}_PROMPT`];
+    if (label && prompt) suggestions.push({ label, prompt });
+  }
+
   const config = {
     webhookUrl: process.env.NEXT_PUBLIC_WEBHOOK_URL || "",
     kbSlug: process.env.NEXT_PUBLIC_KB_SLUG || "",
@@ -22,6 +29,13 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     primaryColor: process.env.NEXT_PUBLIC_PRIMARY_COLOR || "",
     toggleIcon: process.env.NEXT_PUBLIC_TOGGLE_ICON || "",
     fontFamily: process.env.NEXT_PUBLIC_FONT_FAMILY || "",
+    suggestions: suggestions.length ? suggestions : undefined,
+    greetings: [
+      process.env.NEXT_PUBLIC_GREETING_1 || "",
+      process.env.NEXT_PUBLIC_GREETING_2 || "",
+    ].filter(Boolean).length === 2
+      ? [process.env.NEXT_PUBLIC_GREETING_1 || "", process.env.NEXT_PUBLIC_GREETING_2 || ""]
+      : undefined,
   };
   const configJson = JSON.stringify(config);
 
