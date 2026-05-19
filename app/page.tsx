@@ -2,13 +2,9 @@
 
 import React, { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
-import dynamic from "next/dynamic";
 import { ChevronDown } from "lucide-react";
 import { Demo } from "@/components/gsap/demo";
 function cn(...a: (string | undefined | null | false)[]) { return a.filter(Boolean).join(" "); }
-
-// Lazy loaded chat widget
-const ChatWidget = dynamic(() => import("./chat-widget").then(m => m.default), { ssr: false });
 
 // ── Velaris (WebGL Background) ─────────────────────────────────────────
 
@@ -333,8 +329,6 @@ function AccordionFAQ() {
 }
 
 export default function App() {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-white">
       <Velaris height="100vh" bg="#000000" colors={["#86efac", "#4ade80", "#059669", "#000000"]} speed={2} grain={0.3}>
@@ -348,12 +342,6 @@ export default function App() {
           <AccordionFAQ />
         </div>
       </Velaris>
-      <AnimatePresence>
-        {isOpen && <ChatWidget onClose={() => setIsOpen(false)} />}
-      </AnimatePresence>
-      <button onClick={() => setIsOpen(!isOpen)} className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 rounded-full overflow-hidden w-10 h-10 shadow-[0_4px_12px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:scale-110 hover:rotate-12 active:scale-95 transition-all duration-200">
-        <img src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/green.jpg" alt="Chat" className="w-full h-full object-cover" />
-      </button>
     </div>
   );
 }

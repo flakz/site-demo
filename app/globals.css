@@ -32,14 +32,6 @@ p, span, button, input, li, a {
   font-family: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Chat widget uses Karla */
-.chat-widget {
-  font-family: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
-}
-
-.chat-widget p, .chat-widget span, .chat-widget button, .chat-widget input, .chat-widget h1, .chat-widget h2, .chat-widget h3 {
-  font-family: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
-}
-
+/* ── reset ── */
 * { scrollbar-width: none; -ms-overflow-style: none; }
 *::-webkit-scrollbar { display: none; }
