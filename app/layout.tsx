@@ -24,6 +24,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   const config = {
     webhookUrl: process.env.NEXT_PUBLIC_WEBHOOK_URL || "",
     kbSlug: process.env.NEXT_PUBLIC_KB_SLUG || "",
+    instructId: process.env.NEXT_PUBLIC_INSTRUCT_ID || "",
     brandName: process.env.NEXT_PUBLIC_BRAND_NAME || "",
     brandLogo: process.env.NEXT_PUBLIC_BRAND_LOGO || "",
     primaryColor: process.env.NEXT_PUBLIC_PRIMARY_COLOR || "",
@@ -45,10 +46,10 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://n8n.marno.pro" />
-        <link rel="preconnect" href="https://marno-embed.vercel.app" />
+        <link rel="preconnect" href="https://status-marno.vercel.app" />
         <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: `window.MarnoChatConfig = ${configJson};` }} />
-        <script src="https://marno-embed.vercel.app/marno-chat-widget.js" />
+        <script src="https://status-marno.vercel.app/marno-chat-widget.js" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
         {children}

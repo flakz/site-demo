@@ -16,6 +16,7 @@ const greetings = [getEnv("GREETING_1"), getEnv("GREETING_2")].filter(Boolean);
 const config = {
   webhookUrl: getEnv("WEBHOOK_URL"),
   kbSlug: getEnv("KB_SLUG"),
+  instructId: getEnv("INSTRUCT_ID"),
   brandName: getEnv("BRAND_NAME"),
   brandLogo: getEnv("BRAND_LOGO"),
   primaryColor: getEnv("PRIMARY_COLOR"),
